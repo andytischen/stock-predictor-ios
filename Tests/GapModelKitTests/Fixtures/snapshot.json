@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-08-05T06:30:00Z",
+  "summary": "Brent -0.3%, WTI -0.8% | S&P 500 73%",
+  "markets": [
+    {
+      "market": "S&P 500",
+      "symbol": "^GSPC",
+      "region": "Americas",
+      "session": "2026-08-05",
+      "session_open_utc": "2026-08-05T13:30:00Z",
+      "p_open_up": 0.7272,
+      "oos_auc": 0.6939,
+      "oos_brier_skill": 0.1081,
+      "oos_accuracy": 0.6506,
+      "base_rate": 0.5616,
+      "drivers": [
+        { "name": "mkt_n225_return", "log_odds": 0.8518 },
+        { "name": "own_close_return_lag1", "log_odds": -0.4291 }
+      ]
+    },
+    {
+      "market": "ASX 200",
+      "symbol": "^AXJO",
+      "region": "Asia",
+      "session": "2026-08-05",
+      "session_open_utc": "2026-08-04T23:00:00Z",
+      "p_open_up": 0.4123,
+      "oos_auc": 0.85,
+      "oos_brier_skill": 0.37,
+      "oos_accuracy": 0.78,
+      "base_rate": 0.54,
+      "drivers": [
+        { "name": "mkt_gspc_return", "log_odds": 0.31 }
+      ],
+      "p_shocked": 0.48,
+      "p_change": 0.0677
+    }
+  ],
+  "crude": [
+    {
+      "symbol": "BZ=F",
+      "name": "Brent crude",
+      "as_of": "2026-08-05",
+      "close": 79.1,
+      "return_1d": -0.0033,
+      "return_5d": -0.1373,
+      "volatility_20d": 0.0496,
+      "shock": -0.0661,
+      "is_shock": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+# XcodeGen project definition. Generate the .xcodeproj with:
+#   brew install xcodegen && xcodegen generate
+# then open StockPredictor.xcodeproj in Xcode.
+name: StockPredictor
+options:
+  bundleIdPrefix: com.andytischen
+  deploymentTarget:
+    iOS: "16.0"
+packages:
+  GapModelKit:
+    path: .
+targets:
+  StockPredictor:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: GapModelKit
+    info:
+      path: App/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Gap Model
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andytischen.stockpredictor
+        GENERATE_INFOPLIST_FILE: false
+        TARGETED_DEVICE_FAMILY: "1,2"
