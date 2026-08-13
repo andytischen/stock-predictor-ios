@@ -13,6 +13,13 @@ enum AdSlot {
         }
     }
 
+    var width: CGFloat {
+        switch self {
+        case .banner: return 320
+        case .mediumRectangle: return 300
+        }
+    }
+
     var label: String {
         switch self {
         case .banner: return "Banner 320×50"
@@ -22,7 +29,7 @@ enum AdSlot {
 }
 
 /// Reserved space for an advert. Renders a labelled placeholder until an ad
-/// SDK provides a view through `AdProvider`.
+/// SDK fills the slot.
 struct AdSlotView: View {
     let slot: AdSlot
 
@@ -37,9 +44,20 @@ struct AdSlotView: View {
             }
             .foregroundStyle(.secondary)
         }
+        .frame(width: slot.width, height: slot.height)
         .frame(maxWidth: .infinity)
-        .frame(height: slot.height)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Advertisement space")
+    }
+}
+
+extension View {
+    /// Pins a banner slot above the tab bar without covering scrolled content.
+    func bannerAdSlot() -> some View {
+        safeAreaInset(edge: .bottom) {
+            AdSlotView(slot: .banner)
+                .padding(.vertical, 4)
+                .background(.bar)
+        }
     }
 }

@@ -17,16 +17,13 @@ struct RootView: View {
     @EnvironmentObject private var store: SnapshotStore
 
     var body: some View {
-        VStack(spacing: 0) {
-            TabView {
-                MarketsListView()
-                    .tabItem { Label("Markets", systemImage: "chart.line.uptrend.xyaxis") }
-                CrudeDashboardView()
-                    .tabItem { Label("Crude", systemImage: "drop.fill") }
-            }
-            AdSlotView(slot: .banner)
-                .padding(.horizontal, 8)
-                .padding(.bottom, 4)
+        TabView {
+            MarketsListView()
+                .bannerAdSlot()
+                .tabItem { Label("Markets", systemImage: "chart.line.uptrend.xyaxis") }
+            CrudeDashboardView()
+                .bannerAdSlot()
+                .tabItem { Label("Crude", systemImage: "drop.fill") }
         }
     }
 }
