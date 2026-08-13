@@ -27,6 +27,12 @@ struct MarketDetailView: View {
                 LabeledContent("Base rate", value: Format.percent(market.baseRate))
             }
 
+            Section {
+                AdSlotView(slot: .mediumRectangle)
+            }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+
             Section("Top drivers (log-odds)") {
                 ForEach(market.drivers) { driver in
                     LabeledContent(driver.name) {
