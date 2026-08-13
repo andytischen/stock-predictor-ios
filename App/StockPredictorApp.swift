@@ -19,8 +19,10 @@ struct RootView: View {
     var body: some View {
         TabView {
             MarketsListView()
+                .bannerAdSlot()
                 .tabItem { Label("Markets", systemImage: "chart.line.uptrend.xyaxis") }
             CrudeDashboardView()
+                .bannerAdSlot()
                 .tabItem { Label("Crude", systemImage: "drop.fill") }
         }
     }

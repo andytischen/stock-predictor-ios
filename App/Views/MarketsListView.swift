@@ -24,13 +24,20 @@ struct MarketsListView: View {
                 Section {
                     Text(snapshot.summary).font(.callout).foregroundStyle(.secondary)
                 }
-                ForEach(regions(in: snapshot), id: \.self) { region in
+                ForEach(Array(regions(in: snapshot).enumerated()), id: \.element) { index, region in
                     Section(region) {
                         ForEach(snapshot.markets.filter { $0.region == region }) { market in
                             NavigationLink(value: market) {
                                 MarketRow(market: market)
                             }
                         }
+                    }
+                    if index == 0 {
+                        Section {
+                            AdSlotView(slot: .mediumRectangle)
+                        }
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                     }
                 }
             }

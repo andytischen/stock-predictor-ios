@@ -12,6 +12,11 @@ struct CrudeDashboardView: View {
                         Section("Summary") {
                             Text(snapshot.summary).font(.callout)
                         }
+                        Section {
+                            AdSlotView(slot: .mediumRectangle)
+                        }
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                         Section("Crude") {
                             ForEach(snapshot.crude) { crude in
                                 CrudeRow(crude: crude)
