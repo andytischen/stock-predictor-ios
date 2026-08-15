@@ -9,6 +9,9 @@ options:
 packages:
   GapModelKit:
     path: .
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
+    exactVersion: 13.7.0
 targets:
   StockPredictor:
     type: application
@@ -17,15 +20,13 @@ targets:
       - App
     dependencies:
       - package: GapModelKit
-    info:
-      path: App/Resources/Info.plist
-      properties:
-        CFBundleDisplayName: Gap Model
-        UILaunchScreen: {}
-        UIApplicationSceneManifest:
-          UIApplicationSupportsMultipleScenes: false
+      - package: GoogleMobileAds
+        product: GoogleMobileAds
     settings:
       base:
+        # The committed plist is the source of truth; XcodeGen would otherwise
+        # rewrite it from an `info:` block and drop the AdMob keys.
+        INFOPLIST_FILE: App/Resources/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.andytischen.stockpredictor
         GENERATE_INFOPLIST_FILE: false
         TARGETED_DEVICE_FAMILY: "1,2"

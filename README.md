@@ -13,6 +13,17 @@ with the cross-asset drivers and the crude dashboard behind each call.
   (Foundation only), which is what CI runs.
 - **`App/`** — the SwiftUI app (tabs: markets list → market detail, and the
   crude dashboard). Depends on `GapModelKit`. Built with Xcode.
+- **`App/Ads/`** — the ad seam: `AdSlot` sizes the reserved space, `AdProvider`
+  supplies the creative for a slot. `PlaceholderAdProvider` (the default) never
+  fills, so slots show a labelled placeholder; `MockAdProvider` fills every slot
+  for layout checks. `AdMobAdProvider` fills slots with Google Mobile Ads
+  banners and is used whenever that SDK is linked in. Linking another network
+  means writing one `AdProvider` and injecting it in `StockPredictorApp` — no
+  view changes.
+
+  The ad unit IDs in `AdMobUnit` and `GADApplicationIdentifier` in
+  `App/Resources/Info.plist` are Google's public test values: they always serve
+  test creatives and must be replaced with the real AdMob IDs before release.
 - **`project.yml`** — [XcodeGen](https://github.com/yonaskolb/XcodeGen)
   definition; the `.xcodeproj` is generated, not committed.
 

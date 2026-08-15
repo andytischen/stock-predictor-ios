@@ -4,10 +4,22 @@ import SwiftUI
 struct StockPredictorApp: App {
     @StateObject private var store = SnapshotStore()
 
+    /// One provider for the whole app, so the SDK is started once. Each slot
+    /// still renders its own ad view. Falls back to placeholders wherever
+    /// Google Mobile Ads isn't linked in.
+    private let adProvider: AdProvider = {
+        #if canImport(GoogleMobileAds)
+        return AdMobAdProvider()
+        #else
+        return PlaceholderAdProvider()
+        #endif
+    }()
+
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environmentObject(store)
+                .environment(\.adProvider, adProvider)
                 .task { await store.load() }
         }
     }

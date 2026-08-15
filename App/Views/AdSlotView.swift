@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// Where an advert can be placed. The size matches the standard IAB unit the
-/// slot is expected to serve, so layout is stable before any SDK is wired in.
-enum AdSlot {
+/// slot is expected to serve, so layout is stable however the slot is filled.
+enum AdSlot: Hashable {
     case banner
     case mediumRectangle
 
@@ -28,12 +28,29 @@ enum AdSlot {
     }
 }
 
-/// Reserved space for an advert. Renders a labelled placeholder until an ad
-/// SDK fills the slot.
+/// Reserved space for an advert, filled by the environment's `AdProvider` and
+/// falling back to a labelled placeholder when there is no fill.
 struct AdSlotView: View {
     let slot: AdSlot
 
+    @Environment(\.adProvider) private var provider
+
     var body: some View {
+        Group {
+            if let ad = provider.adView(for: slot) {
+                ad
+            } else {
+                placeholder
+            }
+        }
+        .frame(maxWidth: slot.width)
+        .frame(height: slot.height)
+        .frame(maxWidth: .infinity)
+    }
+
+    /// Collapsed for VoiceOver: it is empty space, not content. A filled slot
+    /// keeps the network's own accessibility tree so its controls stay reachable.
+    private var placeholder: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
@@ -44,8 +61,6 @@ struct AdSlotView: View {
             }
             .foregroundStyle(.secondary)
         }
-        .frame(width: slot.width, height: slot.height)
-        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Advertisement space")
     }
