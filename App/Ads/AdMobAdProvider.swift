@@ -89,6 +89,10 @@ private final class BannerHost: UIViewController {
         banner = BannerView(adSize: Self.adSize(for: slot))
         super.init(nibName: nil, bundle: nil)
         banner.adUnitID = AdMobUnit.id(for: slot)
+        // Set here rather than in `viewDidLoad`: SwiftUI can update (and so
+        // re-request) before the view loads, and a request without a root
+        // controller is rejected.
+        banner.rootViewController = self
     }
 
     /// Re-requests only when the host is reused for a different slot, so an
@@ -112,7 +116,6 @@ private final class BannerHost: UIViewController {
             banner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             banner.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
-        banner.rootViewController = self
         load()
     }
 
