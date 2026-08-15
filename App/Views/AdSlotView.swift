@@ -46,10 +46,10 @@ struct AdSlotView: View {
         .frame(maxWidth: slot.width)
         .frame(height: slot.height)
         .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Advertisement")
     }
 
+    /// Collapsed for VoiceOver: it is empty space, not content. A filled slot
+    /// keeps the network's own accessibility tree so its controls stay reachable.
     private var placeholder: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
@@ -61,6 +61,8 @@ struct AdSlotView: View {
             }
             .foregroundStyle(.secondary)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Advertisement space")
     }
 }
 

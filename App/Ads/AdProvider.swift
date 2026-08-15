@@ -4,9 +4,12 @@ import SwiftUI
 /// network is linked in; returning `nil` means "no fill", which leaves the
 /// reserved space showing its placeholder.
 ///
-/// A slot's view must be created once and retained by the provider: the banner
-/// slot is attached to every tab, so returning a fresh view per call would
-/// start a new request and impression lifecycle on each tab switch.
+/// Called from `body`, so it must be cheap and must not mutate state that
+/// SwiftUI observes. A slot can be rendered at more than one position in the
+/// view tree (the banner is attached to every tab), and SwiftUI instantiates
+/// each position separately: an implementation must hand each site its own
+/// native view and share only the request/loader state behind it. Handing back
+/// one retained UIKit view would reparent it away from the other site.
 protocol AdProvider: AnyObject {
     func adView(for slot: AdSlot) -> AnyView?
 }
@@ -17,16 +20,11 @@ final class PlaceholderAdProvider: AdProvider {
     func adView(for slot: AdSlot) -> AnyView? { nil }
 }
 
-/// Fills every slot with an opaque stand-in creative, retaining one view per
-/// slot the way a real provider must. For previews and manual layout checks.
+/// Fills every slot with an opaque stand-in creative. For previews and manual
+/// layout checks.
 final class MockAdProvider: AdProvider {
-    private var views: [AdSlot: AnyView] = [:]
-
     func adView(for slot: AdSlot) -> AnyView? {
-        if let view = views[slot] { return view }
-        let view = AnyView(MockCreative(slot: slot))
-        views[slot] = view
-        return view
+        AnyView(MockCreative(slot: slot))
     }
 }
 
