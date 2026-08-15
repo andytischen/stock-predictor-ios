@@ -4,9 +4,16 @@ import SwiftUI
 struct StockPredictorApp: App {
     @StateObject private var store = SnapshotStore()
 
-    /// One provider for the whole app: slots share its per-slot views, so the
-    /// banner attached to each tab is a single request, not one per tab.
-    private let adProvider: AdProvider = PlaceholderAdProvider()
+    /// One provider for the whole app, so the SDK is started once. Each slot
+    /// still renders its own ad view. Falls back to placeholders wherever
+    /// Google Mobile Ads isn't linked in.
+    private let adProvider: AdProvider = {
+        #if canImport(GoogleMobileAds)
+        return AdMobAdProvider()
+        #else
+        return PlaceholderAdProvider()
+        #endif
+    }()
 
     var body: some Scene {
         WindowGroup {

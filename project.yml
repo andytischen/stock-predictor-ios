@@ -9,6 +9,9 @@ options:
 packages:
   GapModelKit:
     path: .
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
+    majorVersion: 13.7.0
 targets:
   StockPredictor:
     type: application
@@ -17,6 +20,8 @@ targets:
       - App
     dependencies:
       - package: GapModelKit
+      - package: GoogleMobileAds
+        product: GoogleMobileAds
     info:
       path: App/Resources/Info.plist
       properties:
