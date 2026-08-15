@@ -31,6 +31,9 @@ final class AdMobAdProvider: AdProvider {
 /// Starts the SDK once, on the launch path as Google documents, and holds back
 /// requests until initialization reports done: `start()` returns before that,
 /// and mediation adapters only take part in requests made afterwards.
+///
+/// One instance per app — a second would call `start()` again and keep its own
+/// queue. Main thread only, which is why the state needs no lock.
 private final class SDKStartup {
     private var isReady = false
     private var pending: [() -> Void] = []
@@ -41,8 +44,8 @@ private final class SDKStartup {
         }
     }
 
-    /// Main thread only, matching the SwiftUI/UIKit callers.
     func whenReady(_ request: @escaping () -> Void) {
+        assert(Thread.isMainThread)
         if isReady {
             request()
         } else {
@@ -51,6 +54,7 @@ private final class SDKStartup {
     }
 
     private func markReady() {
+        assert(Thread.isMainThread)
         isReady = true
         let queued = pending
         pending = []
@@ -77,6 +81,7 @@ private final class BannerHost: UIViewController {
     private let banner: BannerView
     private let startup: SDKStartup
     private var slot: AdSlot
+    private var request = 0
 
     init(slot: AdSlot, startup: SDKStartup) {
         self.slot = slot
@@ -111,9 +116,14 @@ private final class BannerHost: UIViewController {
         load()
     }
 
+    /// Only the newest request survives, so a slot change while the SDK is
+    /// still starting up doesn't leave an earlier queued request to fire too.
     private func load() {
+        request += 1
+        let current = request
         startup.whenReady { [weak self] in
-            self?.banner.load(Request())
+            guard let self, current == self.request else { return }
+            self.banner.load(Request())
         }
     }
 
