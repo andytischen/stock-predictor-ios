@@ -13,6 +13,11 @@ with the cross-asset drivers and the crude dashboard behind each call.
   (Foundation only), which is what CI runs.
 - **`App/`** — the SwiftUI app (tabs: markets list → market detail, and the
   crude dashboard). Depends on `GapModelKit`. Built with Xcode.
+- **`App/Ads/`** — the ad seam: `AdSlot` sizes the reserved space, `AdProvider`
+  supplies the creative for a slot. `PlaceholderAdProvider` (the default) never
+  fills, so slots show a labelled placeholder; `MockAdProvider` fills every slot
+  for layout checks. Linking a network means writing one `AdProvider` and
+  injecting it in `StockPredictorApp` — no view changes.
 - **`project.yml`** — [XcodeGen](https://github.com/yonaskolb/XcodeGen)
   definition; the `.xcodeproj` is generated, not committed.
 
