@@ -21,14 +21,44 @@ import GoogleMobileAds
 /// Fills slots with AdMob banners. Each render site gets its own `BannerView`
 /// (see `AdProvider`); the SDK, started once here, is the shared state.
 final class AdMobAdProvider: AdProvider {
-    init() {
-        // Google's documented placement: once, on the launch path. Ad requests
-        // are only issued once a slot is rendered, which is after this returns.
-        MobileAds.shared.start()
-    }
+    private let startup = SDKStartup()
 
     func adView(for slot: AdSlot) -> AnyView? {
-        AnyView(AdMobBanner(slot: slot))
+        AnyView(AdMobBanner(slot: slot, startup: startup))
+    }
+}
+
+/// Starts the SDK once, on the launch path as Google documents, and holds back
+/// requests until initialization reports done: `start()` returns before that,
+/// and mediation adapters only take part in requests made afterwards.
+///
+/// One instance per app — a second would call `start()` again and keep its own
+/// queue. Main thread only, which is why the state needs no lock.
+private final class SDKStartup {
+    private var isReady = false
+    private var pending: [() -> Void] = []
+
+    init() {
+        MobileAds.shared.start { [weak self] _ in
+            DispatchQueue.main.async { self?.markReady() }
+        }
+    }
+
+    func whenReady(_ request: @escaping () -> Void) {
+        assert(Thread.isMainThread)
+        if isReady {
+            request()
+        } else {
+            pending.append(request)
+        }
+    }
+
+    private func markReady() {
+        assert(Thread.isMainThread)
+        isReady = true
+        let queued = pending
+        pending = []
+        queued.forEach { $0() }
     }
 }
 
@@ -36,9 +66,10 @@ final class AdMobAdProvider: AdProvider {
 /// to request an ad and to present the creative's landing page.
 private struct AdMobBanner: UIViewControllerRepresentable {
     let slot: AdSlot
+    let startup: SDKStartup
 
     func makeUIViewController(context: Context) -> BannerHost {
-        BannerHost(slot: slot)
+        BannerHost(slot: slot, startup: startup)
     }
 
     func updateUIViewController(_ host: BannerHost, context: Context) {
@@ -48,13 +79,20 @@ private struct AdMobBanner: UIViewControllerRepresentable {
 
 private final class BannerHost: UIViewController {
     private let banner: BannerView
+    private let startup: SDKStartup
     private var slot: AdSlot
+    private var request = 0
 
-    init(slot: AdSlot) {
+    init(slot: AdSlot, startup: SDKStartup) {
         self.slot = slot
+        self.startup = startup
         banner = BannerView(adSize: Self.adSize(for: slot))
         super.init(nibName: nil, bundle: nil)
         banner.adUnitID = AdMobUnit.id(for: slot)
+        // Set here rather than in `viewDidLoad`: SwiftUI can update (and so
+        // re-request) before the view loads, and a request without a root
+        // controller is rejected.
+        banner.rootViewController = self
     }
 
     /// Re-requests only when the host is reused for a different slot, so an
@@ -64,7 +102,7 @@ private final class BannerHost: UIViewController {
         self.slot = slot
         banner.adSize = Self.adSize(for: slot)
         banner.adUnitID = AdMobUnit.id(for: slot)
-        banner.load(Request())
+        load()
     }
 
     @available(*, unavailable)
@@ -78,8 +116,18 @@ private final class BannerHost: UIViewController {
             banner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             banner.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
-        banner.rootViewController = self
-        banner.load(Request())
+        load()
+    }
+
+    /// Only the newest request survives, so a slot change while the SDK is
+    /// still starting up doesn't leave an earlier queued request to fire too.
+    private func load() {
+        request += 1
+        let current = request
+        startup.whenReady { [weak self] in
+            guard let self, current == self.request else { return }
+            self.banner.load(Request())
+        }
     }
 
     private static func adSize(for slot: AdSlot) -> AdSize {
