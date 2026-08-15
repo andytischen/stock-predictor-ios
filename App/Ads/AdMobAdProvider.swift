@@ -22,7 +22,12 @@ import GoogleMobileAds
 /// (see `AdProvider`); the SDK, started once here, is the shared state.
 final class AdMobAdProvider: AdProvider {
     init() {
-        MobileAds.shared.start()
+        // Off the main thread: `start()` does I/O and can cost hundreds of
+        // milliseconds on a cold launch. Requests made before it finishes are
+        // queued by the SDK.
+        DispatchQueue.global(qos: .default).async {
+            MobileAds.shared.start()
+        }
     }
 
     func adView(for slot: AdSlot) -> AnyView? {
@@ -39,16 +44,30 @@ private struct AdMobBanner: UIViewControllerRepresentable {
         BannerHost(slot: slot)
     }
 
-    func updateUIViewController(_ host: BannerHost, context: Context) {}
+    func updateUIViewController(_ host: BannerHost, context: Context) {
+        host.reload(for: slot)
+    }
 }
 
 private final class BannerHost: UIViewController {
     private let banner: BannerView
+    private var slot: AdSlot
 
     init(slot: AdSlot) {
+        self.slot = slot
         banner = BannerView(adSize: Self.adSize(for: slot))
         super.init(nibName: nil, bundle: nil)
         banner.adUnitID = AdMobUnit.id(for: slot)
+    }
+
+    /// Re-requests only when the host is reused for a different slot, so an
+    /// ordinary SwiftUI update never costs an extra ad request.
+    func reload(for slot: AdSlot) {
+        guard slot != self.slot else { return }
+        self.slot = slot
+        banner.adSize = Self.adSize(for: slot)
+        banner.adUnitID = AdMobUnit.id(for: slot)
+        banner.load(Request())
     }
 
     @available(*, unavailable)
