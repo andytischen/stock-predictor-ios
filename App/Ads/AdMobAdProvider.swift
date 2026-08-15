@@ -22,12 +22,9 @@ import GoogleMobileAds
 /// (see `AdProvider`); the SDK, started once here, is the shared state.
 final class AdMobAdProvider: AdProvider {
     init() {
-        // Off the main thread: `start()` does I/O and can cost hundreds of
-        // milliseconds on a cold launch. Requests made before it finishes are
-        // queued by the SDK.
-        DispatchQueue.global(qos: .default).async {
-            MobileAds.shared.start()
-        }
+        // Google's documented placement: once, on the launch path. Ad requests
+        // are only issued once a slot is rendered, which is after this returns.
+        MobileAds.shared.start()
     }
 
     func adView(for slot: AdSlot) -> AnyView? {
