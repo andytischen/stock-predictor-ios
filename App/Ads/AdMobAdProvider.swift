@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Ad unit IDs. These are Google's public test units, which always return a
-/// test creative; swap in the real units before shipping.
+/// Ad unit IDs, one per slot. Both are Google's public banner test unit, which
+/// serves a test creative at whichever size is requested; the real units differ
+/// per slot and must be substituted before shipping.
 enum AdMobUnit {
     static let banner = "ca-app-pub-3940256099942544/2435281174"
     static let mediumRectangle = "ca-app-pub-3940256099942544/2435281174"
@@ -29,19 +30,43 @@ final class AdMobAdProvider: AdProvider {
     }
 }
 
-private struct AdMobBanner: UIViewRepresentable {
+/// A controller rather than a plain view: the SDK needs a `rootViewController`
+/// to request an ad and to present the creative's landing page.
+private struct AdMobBanner: UIViewControllerRepresentable {
     let slot: AdSlot
 
-    func makeUIView(context: Context) -> BannerView {
-        let view = BannerView(adSize: adSize)
-        view.adUnitID = AdMobUnit.id(for: slot)
-        view.load(Request())
-        return view
+    func makeUIViewController(context: Context) -> BannerHost {
+        BannerHost(slot: slot)
     }
 
-    func updateUIView(_ view: BannerView, context: Context) {}
+    func updateUIViewController(_ host: BannerHost, context: Context) {}
+}
 
-    private var adSize: AdSize {
+private final class BannerHost: UIViewController {
+    private let banner: BannerView
+
+    init(slot: AdSlot) {
+        banner = BannerView(adSize: Self.adSize(for: slot))
+        super.init(nibName: nil, bundle: nil)
+        banner.adUnitID = AdMobUnit.id(for: slot)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unavailable") }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        banner.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(banner)
+        NSLayoutConstraint.activate([
+            banner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            banner.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ])
+        banner.rootViewController = self
+        banner.load(Request())
+    }
+
+    private static func adSize(for slot: AdSlot) -> AdSize {
         switch slot {
         case .banner: return AdSizeBanner
         case .mediumRectangle: return AdSizeMediumRectangle
