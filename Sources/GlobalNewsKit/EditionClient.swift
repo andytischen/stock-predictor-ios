@@ -14,8 +14,21 @@ public struct EditionClient: Sendable {
         self.session = session
     }
 
-    public enum Failure: Error, Equatable {
+    public enum Failure: LocalizedError, Equatable {
         case badStatus(Int)
+
+        /// The views show `localizedDescription`, so spell the reason out; the
+        /// default for a bare `Error` is "the operation could not be completed".
+        public var errorDescription: String? {
+            switch self {
+            case .badStatus(404):
+                return "The edition isn't published yet (404)."
+            case let .badStatus(code) where code >= 500:
+                return "The newsroom's server is having trouble (\(code))."
+            case let .badStatus(code):
+                return "The edition couldn't be downloaded (HTTP \(code))."
+            }
+        }
     }
 
     /// Fetch the latest edition. Throws on transport, HTTP or decoding errors.

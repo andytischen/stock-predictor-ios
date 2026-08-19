@@ -21,6 +21,10 @@ targets:
       path: App/Resources/Info.plist
       properties:
         CFBundleDisplayName: Gap Model
+        # XcodeGen rewrites this plist on every generate, so the versions have to
+        # live here or generation silently resets them to its 1.0 default.
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -52,6 +56,8 @@ targets:
       path: NewsApp/Resources/Info.plist
       properties:
         CFBundleDisplayName: Randy's Global News First
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
