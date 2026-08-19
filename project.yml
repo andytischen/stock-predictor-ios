@@ -37,8 +37,9 @@ targets:
     type: application
     platform: iOS
     # ContentUnavailableView and the toolbar placements the layout uses are iOS 17.
-    deploymentTarget:
-      iOS: "17.0"
+    # Single-platform targets take a bare version string; a platform-keyed map
+    # here is ignored and the target silently inherits the project's iOS 16.
+    deploymentTarget: "17.0"
     sources:
       - NewsApp
       - path: App/Views/AdSlotView.swift
