@@ -22,6 +22,7 @@ struct TopStoriesView: View {
             List {
                 Section {
                     Masthead(edition: edition)
+                    RefreshFailureNotice()
                 }
                 if let lead = edition.lead {
                     Section {

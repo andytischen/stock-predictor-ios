@@ -11,6 +11,9 @@ struct RegionsView: View {
             Group {
                 if let edition = store.edition {
                     List {
+                        Section {
+                            RefreshFailureNotice()
+                        }
                         ForEach(edition.regions, id: \.self) { region in
                             NavigationLink(value: region) {
                                 LabeledContent {
