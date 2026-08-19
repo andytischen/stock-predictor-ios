@@ -13,14 +13,14 @@ enum NewsConfig {
 /// stories the reader has bookmarked.
 @MainActor
 final class EditionStore: ObservableObject {
-    enum State: Equatable {
+    enum Status: Equatable {
         case idle
         case loading
-        case loaded(Edition)
+        case loaded
         case failed(String)
     }
 
-    @Published private(set) var state: State = .idle
+    @Published private(set) var status: Status = .idle
     /// The edition on screen: the last one that loaded, so a failed refresh
     /// leaves the reader on the previous edition rather than an empty app.
     @Published private(set) var edition: Edition?
@@ -37,23 +37,24 @@ final class EditionStore: ObservableObject {
     private init(edition: Edition) {
         client = EditionClient(url: NewsConfig.editionURL)
         self.edition = edition
-        state = .loaded(edition)
+        status = .loaded
     }
 
     /// Why the last load failed, if it did.
     var loadFailure: String? {
-        if case let .failed(message) = state { return message }
+        if case let .failed(message) = status { return message }
         return nil
     }
 
     func load() async {
-        state = .loading
+        status = .loading
         do {
             let edition = try await client.fetch()
             self.edition = edition
-            state = .loaded(edition)
+            refreshSavedStories(from: edition)
+            status = .loaded
         } catch {
-            state = .failed(error.localizedDescription)
+            status = .failed(error.localizedDescription)
         }
     }
 
@@ -64,6 +65,14 @@ final class EditionStore: ObservableObject {
             savedStories.remove(at: index)
         } else {
             savedStories.append(story)
+        }
+    }
+
+    /// Adopts the new edition's copy of every bookmarked story, so corrections
+    /// reach the reading list. Stories the edition dropped keep the saved copy.
+    private func refreshSavedStories(from edition: Edition) {
+        savedStories = savedStories.map { saved in
+            edition.stories.first { $0.id == saved.id } ?? saved
         }
     }
 

@@ -103,6 +103,32 @@ struct StoryArtwork: View {
     }
 }
 
+/// An inline notice that the last refresh failed while a cached edition is
+/// still on screen, so a silently stale front page can't be mistaken for fresh.
+struct RefreshFailureNotice: View {
+    @EnvironmentObject private var store: EditionStore
+
+    var body: some View {
+        if let failure = store.loadFailure, store.edition != nil {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Showing the last edition")
+                        .font(.footnote.weight(.semibold))
+                    Text(failure)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 8)
+                Button("Retry") { Task { await store.load() } }
+                    .font(.footnote.weight(.medium))
+                    .buttonStyle(.borderless)
+            }
+        }
+    }
+}
+
 /// What a tab shows until the first edition arrives: a spinner, or the failure
 /// with a way to retry, since pull-to-refresh needs scrollable content.
 struct EditionLoadingView: View {
