@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-08-19T06:00:00Z",
+  "headline": "Randy's Global News First — morning edition",
+  "stories": [
+    {
+      "id": "opec-quota-rethink",
+      "headline": "OPEC+ signals a quota rethink as Brent slips below $70",
+      "standfirst": "Delegates say the group is weighing a slower unwind of cuts after a third straight week of falling prices.",
+      "body": "Brent crude settled below $70 for the first time since spring, pushing OPEC+ delegates to open the door to a slower unwind of production cuts.\n\nTwo delegates said no decision would be taken before the next ministerial meeting, but that the group was uncomfortable with the pace of the slide.\n\nRefiners in Asia have already trimmed term nominations for the coming quarter.",
+      "region": "middle_east",
+      "topic": "energy",
+      "source": "Randy's Energy Desk",
+      "published_at": "2026-08-19T05:41:00Z",
+      "image_url": "https://example.com/images/opec.jpg",
+      "article_url": "https://example.com/stories/opec-quota-rethink",
+      "is_lead": true,
+      "is_breaking": true
+    },
+    {
+      "id": "ecb-holds",
+      "headline": "ECB holds rates but trims its growth path for 2027",
+      "standfirst": "The council kept the deposit rate unchanged while nudging down next year's growth forecast.",
+      "body": "The Governing Council left rates on hold, as expected, and pointed to softer investment data across the bloc.\n\nPresident's remarks stressed that policy remains restrictive enough to keep disinflation on track.",
+      "region": "europe",
+      "topic": "markets",
+      "source": "Randy's Markets Desk",
+      "published_at": "2026-08-19T05:10:00Z",
+      "article_url": "https://example.com/stories/ecb-holds"
+    },
+    {
+      "id": "tokyo-open",
+      "headline": "Tokyo opens higher as exporters shrug off a firmer yen",
+      "standfirst": "The Nikkei added 0.8% in the first hour, led by autos and machinery.",
+      "body": "Japanese equities opened firmer despite the yen's overnight strength, with autos and machinery leading gains.\n\nTraders pointed to bargain hunting after two sessions of losses.",
+      "region": "asia_pacific",
+      "topic": "markets",
+      "source": "Randy's Asia Desk",
+      "published_at": "2026-08-19T00:05:00Z"
+    },
+    {
+      "id": "chip-fab-lagos",
+      "headline": "A packaging plant in Lagos becomes Africa's first chip test site",
+      "standfirst": "The facility will handle final test and packaging for boards assembled in three countries.",
+      "body": "The plant, financed by a mix of state and private money, will handle final test and packaging rather than wafer fabrication.\n\nIts operators say the first commercial lots will ship within a year.",
+      "region": "africa",
+      "topic": "technology",
+      "source": "Randy's Tech Desk",
+      "published_at": "2026-08-18T18:22:00Z"
+    },
+    {
+      "id": "brazil-harvest",
+      "headline": "Brazil's soy harvest beats forecasts, easing feed costs",
+      "standfirst": "A record crop is arriving at port just as freight rates ease.",
+      "body": "Exporters expect a record crop to clear ports without the congestion seen last season.\n\nFeed buyers in Asia are already reporting cheaper landed costs.",
+      "region": "americas",
+      "topic": "business",
+      "source": "Randy's Americas Desk",
+      "published_at": "2026-08-18T16:00:00Z"
+    },
+    {
+      "id": "antarctic-relay",
+      "headline": "A relay of research ships maps a new Antarctic current",
+      "standfirst": "Six vessels spent a season charting flows beneath the ice shelf.",
+      "body": "The survey suggests a stronger inflow of warm water than models had assumed.\n\nResults will feed into the next round of sea-level projections.",
+      "region": "unknown_desk",
+      "topic": "unknown_topic",
+      "source": "Randy's Science Desk",
+      "published_at": "2026-08-18T09:30:00Z"
+    }
+  ]
+}
