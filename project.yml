@@ -29,3 +29,33 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.andytischen.stockpredictor
         GENERATE_INFOPLIST_FILE: false
         TARGETED_DEVICE_FAMILY: "1,2"
+
+  # Randy's Global News First: the news layout over the published edition JSON.
+  # It shares App/Views/AdSlotView.swift with the gap-model app so both keep the
+  # same reserved advert units.
+  RandysGlobalNewsFirst:
+    type: application
+    platform: iOS
+    # ContentUnavailableView and the toolbar placements the layout uses are iOS 17.
+    deploymentTarget:
+      iOS: "17.0"
+    sources:
+      - NewsApp
+      - path: App/Views/AdSlotView.swift
+      - path: Sample/news.json
+        buildPhase: resources
+    dependencies:
+      - package: GapModelKit
+        product: GlobalNewsKit
+    info:
+      path: NewsApp/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Randy's Global News First
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andytischen.randysglobalnewsfirst
+        GENERATE_INFOPLIST_FILE: false
+        TARGETED_DEVICE_FAMILY: "1,2"
