@@ -103,6 +103,26 @@ struct StoryArtwork: View {
     }
 }
 
+/// What a tab shows until the first edition arrives: a spinner, or the failure
+/// with a way to retry, since pull-to-refresh needs scrollable content.
+struct EditionLoadingView: View {
+    @EnvironmentObject private var store: EditionStore
+
+    var body: some View {
+        if let failure = store.loadFailure {
+            ContentUnavailableView {
+                Label("Couldn't load the edition", systemImage: "wifi.slash")
+            } description: {
+                Text(failure)
+            } actions: {
+                Button("Try again") { Task { await store.load() } }
+            }
+        } else {
+            ProgressView("Loading the edition…")
+        }
+    }
+}
+
 /// The masthead that sits above the first story of an edition.
 struct Masthead: View {
     let edition: Edition

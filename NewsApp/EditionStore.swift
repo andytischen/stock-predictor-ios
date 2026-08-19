@@ -21,7 +21,12 @@ final class EditionStore: ObservableObject {
     }
 
     @Published private(set) var state: State = .idle
-    @Published private(set) var savedStoryIDs: Set<String> = []
+    /// The edition on screen: the last one that loaded, so a failed refresh
+    /// leaves the reader on the previous edition rather than an empty app.
+    @Published private(set) var edition: Edition?
+    /// The stories the reader bookmarked, kept by value so the reading list
+    /// survives a failed refresh and stories dropped from a newer edition.
+    @Published private(set) var savedStories: [Story] = []
 
     private let client: EditionClient
 
@@ -31,34 +36,34 @@ final class EditionStore: ObservableObject {
 
     private init(edition: Edition) {
         client = EditionClient(url: NewsConfig.editionURL)
+        self.edition = edition
         state = .loaded(edition)
     }
 
-    var edition: Edition? {
-        if case let .loaded(edition) = state { return edition }
+    /// Why the last load failed, if it did.
+    var loadFailure: String? {
+        if case let .failed(message) = state { return message }
         return nil
-    }
-
-    var savedStories: [Story] {
-        (edition?.stories ?? []).filter { savedStoryIDs.contains($0.id) }
     }
 
     func load() async {
         state = .loading
         do {
-            state = .loaded(try await client.fetch())
+            let edition = try await client.fetch()
+            self.edition = edition
+            state = .loaded(edition)
         } catch {
             state = .failed(error.localizedDescription)
         }
     }
 
-    func isSaved(_ story: Story) -> Bool { savedStoryIDs.contains(story.id) }
+    func isSaved(_ story: Story) -> Bool { savedStories.contains { $0.id == story.id } }
 
     func toggleSaved(_ story: Story) {
-        if savedStoryIDs.contains(story.id) {
-            savedStoryIDs.remove(story.id)
+        if let index = savedStories.firstIndex(where: { $0.id == story.id }) {
+            savedStories.remove(at: index)
         } else {
-            savedStoryIDs.insert(story.id)
+            savedStories.append(story)
         }
     }
 

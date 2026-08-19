@@ -154,11 +154,11 @@ public enum Region: String, Codable, CaseIterable, Equatable, Sendable {
     /// SF Symbol used on tabs and section headers.
     public var symbolName: String {
         switch self {
-        case .africa: return "globe.europe.africa"
+        case .africa: return "globe.europe.africa.fill"
         case .americas: return "globe.americas"
         case .asiaPacific: return "globe.asia.australia"
-        case .europe: return "globe.central.south.asia"
-        case .middleEast: return "globe.europe.africa.fill"
+        case .europe: return "globe.europe.africa"
+        case .middleEast: return "globe.central.south.asia"
         case .other: return "globe"
         }
     }
