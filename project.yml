@@ -21,6 +21,10 @@ targets:
       path: App/Resources/Info.plist
       properties:
         CFBundleDisplayName: Gap Model
+        # XcodeGen rewrites this plist on every generate, so the versions have to
+        # live here or generation silently resets them to its 1.0 default.
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -37,8 +41,9 @@ targets:
     type: application
     platform: iOS
     # ContentUnavailableView and the toolbar placements the layout uses are iOS 17.
-    deploymentTarget:
-      iOS: "17.0"
+    # Single-platform targets take a bare version string; a platform-keyed map
+    # here is ignored and the target silently inherits the project's iOS 16.
+    deploymentTarget: "17.0"
     sources:
       - NewsApp
       - path: App/Views/AdSlotView.swift
@@ -51,6 +56,8 @@ targets:
       path: NewsApp/Resources/Info.plist
       properties:
         CFBundleDisplayName: Randy's Global News First
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
