@@ -18,16 +18,7 @@ struct TopStoriesView: View {
 
     @ViewBuilder
     private var content: some View {
-        switch store.state {
-        case .idle, .loading:
-            ProgressView("Loading the edition…")
-        case let .failed(message):
-            ContentUnavailableView(
-                "Couldn't load the edition",
-                systemImage: "wifi.slash",
-                description: Text(message)
-            )
-        case let .loaded(edition):
+        if let edition = store.edition {
             List {
                 Section {
                     Masthead(edition: edition)
@@ -53,6 +44,8 @@ struct TopStoriesView: View {
                 }
             }
             .listStyle(.plain)
+        } else {
+            EditionLoadingView()
         }
     }
 }

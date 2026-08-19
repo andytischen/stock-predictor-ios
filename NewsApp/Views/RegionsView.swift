@@ -24,7 +24,7 @@ struct RegionsView: View {
                         }
                     }
                 } else {
-                    ProgressView("Loading the edition…")
+                    EditionLoadingView()
                 }
             }
             .navigationTitle("Regions")
