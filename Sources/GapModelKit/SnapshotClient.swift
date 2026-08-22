@@ -17,8 +17,21 @@ public struct SnapshotClient: Sendable {
         self.session = session
     }
 
-    public enum Failure: Error, Equatable {
+    public enum Failure: LocalizedError, Equatable {
         case badStatus(Int)
+
+        /// `SnapshotStore` shows `localizedDescription`, so spell the reason out;
+        /// the default for a bare `Error` is "the operation could not be completed".
+        public var errorDescription: String? {
+            switch self {
+            case .badStatus(404):
+                return "No snapshot has been published yet (404)."
+            case let .badStatus(code) where code >= 500:
+                return "The snapshot server is having trouble (\(code))."
+            case let .badStatus(code):
+                return "The snapshot couldn't be downloaded (HTTP \(code))."
+            }
+        }
     }
 
     /// Fetch the latest snapshot. Throws on transport, HTTP or decoding errors.

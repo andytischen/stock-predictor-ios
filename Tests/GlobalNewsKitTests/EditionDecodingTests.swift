@@ -54,6 +54,40 @@ final class EditionDecodingTests: XCTestCase {
         XCTAssertEqual(story.topic, .world)
     }
 
+    func testRepeatedIdsKeepOnlyTheFirstStory() throws {
+        let json = Data(
+            """
+            {"generated_at": "2026-08-19T06:00:00Z", "headline": "Repeats",
+             "stories": [{"id": "dupe", "headline": "First", "region": "europe", "is_lead": true},
+                         {"id": "dupe", "headline": "Second", "region": "europe"},
+                         {"id": "other", "headline": "Other", "region": "europe"}]}
+            """.utf8
+        )
+
+        let edition = try EditionClient.decode(json)
+
+        XCTAssertEqual(edition.stories.map(\.headline), ["First", "Other"])
+        XCTAssertEqual(edition.lead?.headline, "First")
+        XCTAssertEqual(edition.rest.map(\.id), ["other"])
+        XCTAssertEqual(edition.stories(in: .europe).count, 2)
+    }
+
+    func testConstructedEditionsAlsoDropRepeatedIds() {
+        func story(_ id: String) -> Story {
+            Story(
+                id: id, headline: id, standfirst: "", body: "", region: .europe,
+                topic: .world, source: "", publishedAt: ""
+            )
+        }
+
+        let edition = Edition(
+            generatedAt: "2026-08-19T06:00:00Z", headline: "Repeats",
+            stories: [story("a"), story("a"), story("b")]
+        )
+
+        XCTAssertEqual(edition.stories.map(\.id), ["a", "b"])
+    }
+
     func testRegionsAreInFirstAppearanceOrder() throws {
         let edition = try EditionClient.decode(try fixture())
 

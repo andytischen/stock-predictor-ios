@@ -11,7 +11,7 @@ public struct Edition: Codable, Equatable, Sendable {
     public init(generatedAt: String, headline: String, stories: [Story]) {
         self.generatedAt = generatedAt
         self.headline = headline
-        self.stories = stories
+        self.stories = Edition.deduplicated(stories)
     }
 
     /// Parsed edition time, if the string is a valid ISO-8601 instant.
@@ -43,6 +43,21 @@ public struct Edition: Codable, Equatable, Sendable {
         case generatedAt = "generated_at"
         case headline
         case stories
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        generatedAt = try container.decode(String.self, forKey: .generatedAt)
+        headline = try container.decode(String.self, forKey: .headline)
+        stories = Edition.deduplicated(try container.decode([Story].self, forKey: .stories))
+    }
+
+    /// The first story wins each id. Ids are the app's view identity, so a feed
+    /// that repeats one would otherwise leave a story off the front page while
+    /// still counting it on its desk, and collide inside `ForEach`.
+    static func deduplicated(_ stories: [Story]) -> [Story] {
+        var seen = Set<String>()
+        return stories.filter { seen.insert($0.id).inserted }
     }
 
     public static var decoder: JSONDecoder { JSONDecoder() }
