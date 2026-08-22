@@ -16,6 +16,7 @@ public struct EditionClient: Sendable {
 
     public enum Failure: LocalizedError, Equatable {
         case badStatus(Int)
+        case malformedEdition(detail: String)
 
         /// The views show `localizedDescription`, so spell the reason out; the
         /// default for a bare `Error` is "the operation could not be completed".
@@ -27,6 +28,8 @@ public struct EditionClient: Sendable {
                 return "The newsroom's server is having trouble (\(code))."
             case let .badStatus(code):
                 return "The edition couldn't be downloaded (HTTP \(code))."
+            case let .malformedEdition(detail):
+                return "The edition downloaded but couldn't be read (\(detail))."
             }
         }
     }
@@ -37,11 +40,15 @@ public struct EditionClient: Sendable {
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw Failure.badStatus(http.statusCode)
         }
-        return try Edition.decoder.decode(Edition.self, from: data)
+        return try EditionClient.decode(data)
     }
 
     /// Decode an edition from bytes already in hand (previews, tests, cache).
     public static func decode(_ data: Data) throws -> Edition {
-        try Edition.decoder.decode(Edition.self, from: data)
+        do {
+            return try Edition.decoder.decode(Edition.self, from: data)
+        } catch let error as DecodingError {
+            throw Failure.malformedEdition(detail: FeedDecodingDetail.describe(error))
+        }
     }
 }

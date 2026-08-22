@@ -23,4 +23,30 @@ final class SnapshotClientFailureTests: XCTestCase {
             "The snapshot couldn't be downloaded (HTTP 403)."
         )
     }
+
+    func testNonJsonBodyReadsAsUnreadable() throws {
+        do {
+            _ = try SnapshotClient.decode(Data("<html>maintenance</html>".utf8))
+            XCTFail("expected decoding to fail")
+        } catch let failure as SnapshotClient.Failure {
+            XCTAssertEqual(
+                failure.localizedDescription,
+                "The snapshot downloaded but couldn't be read (the response wasn't valid JSON)."
+            )
+        }
+    }
+
+    func testMissingFieldNamesTheField() throws {
+        do {
+            _ = try SnapshotClient.decode(Data("{}".utf8))
+            XCTFail("expected decoding to fail")
+        } catch let failure as SnapshotClient.Failure {
+            XCTAssertTrue(
+                failure.localizedDescription.hasPrefix(
+                    "The snapshot downloaded but couldn't be read (missing \""
+                ),
+                failure.localizedDescription
+            )
+        }
+    }
 }
