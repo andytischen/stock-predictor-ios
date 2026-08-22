@@ -19,6 +19,7 @@ public struct SnapshotClient: Sendable {
 
     public enum Failure: LocalizedError, Equatable {
         case badStatus(Int)
+        case malformedSnapshot(detail: String)
 
         /// `SnapshotStore` shows `localizedDescription`, so spell the reason out;
         /// the default for a bare `Error` is "the operation could not be completed".
@@ -30,6 +31,8 @@ public struct SnapshotClient: Sendable {
                 return "The snapshot server is having trouble (\(code))."
             case let .badStatus(code):
                 return "The snapshot couldn't be downloaded (HTTP \(code))."
+            case let .malformedSnapshot(detail):
+                return "The snapshot downloaded but couldn't be read (\(detail))."
             }
         }
     }
@@ -40,11 +43,15 @@ public struct SnapshotClient: Sendable {
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw Failure.badStatus(http.statusCode)
         }
-        return try Snapshot.decoder.decode(Snapshot.self, from: data)
+        return try SnapshotClient.decode(data)
     }
 
     /// Decode a snapshot from bytes already in hand (previews, tests, cache).
     public static func decode(_ data: Data) throws -> Snapshot {
-        try Snapshot.decoder.decode(Snapshot.self, from: data)
+        do {
+            return try Snapshot.decoder.decode(Snapshot.self, from: data)
+        } catch let error as DecodingError {
+            throw Failure.malformedSnapshot(detail: SnapshotDecodingDetail.describe(error))
+        }
     }
 }
