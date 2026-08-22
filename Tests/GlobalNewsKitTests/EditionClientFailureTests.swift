@@ -57,6 +57,39 @@ final class EditionClientFailureTests: XCTestCase {
         )
     }
 
+    /// `dataCorrupted` covers both a body that isn't JSON and a well-formed
+    /// body holding a value a type refuses to parse (a malformed URL or date);
+    /// only the first deserves "wasn't valid JSON".
+    func testAValueTheModelCantParseIsNotCalledInvalidJson() {
+        let path: [CodingKey] = [
+            EditionKey(stringValue: "stories"), EditionKey(intValue: 0),
+            EditionKey(stringValue: "image_url"),
+        ]
+        let corrupted = DecodingError.dataCorrupted(
+            .init(codingPath: path, debugDescription: "Invalid URL string.")
+        )
+
+        XCTAssertEqual(
+            FeedDecodingDetail.describe(corrupted),
+            "unreadable value in stories #1 → image_url"
+        )
+    }
+
+    private struct EditionKey: CodingKey {
+        var stringValue: String
+        var intValue: Int?
+
+        init(stringValue: String) {
+            self.stringValue = stringValue
+            intValue = nil
+        }
+
+        init(intValue: Int) {
+            self.intValue = intValue
+            stringValue = "Index \(intValue)"
+        }
+    }
+
     private func failure(decoding data: Data) throws -> EditionClient.Failure {
         do {
             _ = try EditionClient.decode(data)
