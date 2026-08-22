@@ -11,8 +11,11 @@ enum FeedDecodingDetail {
             return shapeOrLocation("unexpected value", context)
         case let .valueNotFound(_, context):
             return shapeOrLocation("empty value", context)
-        case .dataCorrupted:
-            return "the response wasn't valid JSON"
+        case let .dataCorrupted(context):
+            // Also thrown for a well-formed response holding a value a type
+            // refuses to parse, where the path is the useful part.
+            let place = location(context)
+            return place.isEmpty ? "the response wasn't valid JSON" : "unreadable value" + place
         @unknown default:
             return "the response wasn't in the expected shape"
         }
