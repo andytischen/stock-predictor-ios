@@ -8,18 +8,36 @@ enum FeedDecodingDetail {
         case let .keyNotFound(key, context):
             return "missing \"\(key.stringValue)\"\(location(context))"
         case let .typeMismatch(_, context):
-            return "unexpected value\(location(context))"
+            return shapeOrLocation("unexpected value", context)
         case let .valueNotFound(_, context):
-            return "empty value\(location(context))"
+            return shapeOrLocation("empty value", context)
         case .dataCorrupted:
             return "the response wasn't valid JSON"
         @unknown default:
-            return "unexpected shape"
+            return "the response wasn't in the expected shape"
         }
     }
 
+    /// Without a coding path, "unexpected value" on its own says nothing, so
+    /// describe the whole response instead.
+    private static func shapeOrLocation(
+        _ phrase: String, _ context: DecodingError.Context
+    ) -> String {
+        let place = location(context)
+        return place.isEmpty ? "the response wasn't in the expected shape" : phrase + place
+    }
+
+    /// Array elements arrive as `Index 0`; number them from one instead, hung
+    /// off the field they belong to (`stories #1`).
     private static func location(_ context: DecodingError.Context) -> String {
-        let path = context.codingPath.map(\.stringValue).filter { !$0.isEmpty }
+        var path: [String] = []
+        for key in context.codingPath {
+            if let index = key.intValue {
+                path.append("\(path.popLast() ?? "item") #\(index + 1)")
+            } else if !key.stringValue.isEmpty {
+                path.append(key.stringValue)
+            }
+        }
         guard !path.isEmpty else { return "" }
         return " in \(path.joined(separator: " → "))"
     }

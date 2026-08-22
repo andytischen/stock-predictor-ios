@@ -44,7 +44,16 @@ final class EditionClientFailureTests: XCTestCase {
 
         XCTAssertEqual(
             error.localizedDescription,
-            "The edition downloaded but couldn't be read (missing \"headline\" in stories → Index 0)."
+            "The edition downloaded but couldn't be read (missing \"headline\" in stories #1)."
+        )
+    }
+
+    func testAWholeResponseOfTheWrongShapeSaysSo() throws {
+        let error = try failure(decoding: Data("[]".utf8))
+
+        XCTAssertEqual(
+            error.localizedDescription,
+            "The edition downloaded but couldn't be read (the response wasn't in the expected shape)."
         )
     }
 
