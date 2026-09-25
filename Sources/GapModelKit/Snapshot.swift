@@ -37,7 +37,7 @@ public struct Snapshot: Codable, Equatable, Sendable {
 }
 
 /// One market's next-open call, its out-of-sample quality and its top drivers.
-public struct Market: Codable, Equatable, Identifiable, Sendable {
+public struct Market: Codable, Hashable, Identifiable, Sendable {
     public let market: String
     public let symbol: String
     public let region: String
@@ -97,7 +97,7 @@ public struct Market: Codable, Equatable, Identifiable, Sendable {
 }
 
 /// A single log-odds contribution behind a market's probability.
-public struct Driver: Codable, Equatable, Identifiable, Sendable {
+public struct Driver: Codable, Hashable, Identifiable, Sendable {
     public let name: String
     public let logOdds: Double
 
