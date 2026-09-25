@@ -18,7 +18,17 @@ struct MarketsListView: View {
         case .idle, .loading:
             ProgressView("Loading…")
         case let .failed(message):
-            ContentUnavailableView("Couldn't load", systemImage: "wifi.slash", description: Text(message))
+            if #available(iOS 17.0, *) {
+                ContentUnavailableView("Couldn't load", systemImage: "wifi.slash", description: Text(message))
+            } else {
+                VStack(spacing: 12) {
+                    Image(systemName: "wifi.slash").font(.largeTitle).foregroundStyle(.secondary)
+                    Text("Couldn't load").font(.title2.bold())
+                    Text(message).font(.callout).foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding()
+            }
         case let .loaded(snapshot):
             List {
                 Section {
@@ -74,7 +84,3 @@ private struct MarketRow: View {
         }
     }
 }
-
-// Market conforms to Hashable via Codable/Equatable synthesis for navigation.
-extension Market: Hashable {}
-extension Driver: Hashable {}
